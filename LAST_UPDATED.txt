@@ -1,1 +1,1 @@
-Timmy Quest Editor — modern dark UI refresh committed 2026-11-25. Custom data-specific editing controls remain pending save-format analysis.
+Timmy Quest Editor — ported original H3VR2 Save Editor tab layout (Quick Edit, Store, Inventory, Favorites/Presets, All Fields, Raw JSON, Field Guide) into Quest UI on 2026-11-25. Tabs are structural placeholders; data-aware editing and direct save interaction remain pending.
