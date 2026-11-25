@@ -3,6 +3,8 @@ package com.timmyquesteditor;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
+import android.os.Environment;
 import android.content.Intent;
 import android.net.Uri;
 import android.graphics.Color;
@@ -23,6 +25,13 @@ public class MainActivity extends Activity {
     Uri treeUri; DocumentFile treeRoot;
     final int BG=Color.rgb(12,16,24), PANEL=Color.rgb(23,30,42), ACCENT=Color.rgb(65,190,220), TEXT=Color.rgb(235,242,250), MUTED=Color.rgb(155,170,188);
     public void onCreate(Bundle b){super.onCreate(b);getWindow().setStatusBarColor(BG);getWindow().setNavigationBarColor(BG);buildUI();}
+    void requestBroadFileAccess(){
+        if(android.os.Build.VERSION.SDK_INT>=30){
+            if(Environment.isExternalStorageManager()){status.setText("Broad file access is already granted. Protected app folders may remain restricted.");return;}
+            try{Intent i=new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);i.setData(Uri.parse("package:"+getPackageName()));startActivity(i);}
+            catch(Exception e){try{startActivity(new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));}catch(Exception ex){status.setText("Could not open storage permission settings: "+ex.getMessage());}}
+        }else{status.setText("Broad file access settings are not supported on this Android version.");}
+    }
     void buildUI(){
         LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setBackgroundColor(BG);
         LinearLayout header=new LinearLayout(this);header.setPadding(20,18,20,16);header.setOrientation(LinearLayout.VERTICAL);header.setBackgroundColor(PANEL);
@@ -31,6 +40,8 @@ public class MainActivity extends Activity {
         TextView subtitle=label("H3VR2 • Quest companion",14,MUTED,false);header.addView(subtitle);root.addView(header);
         ScrollView scroll=new ScrollView(this);LinearLayout body=new LinearLayout(this);body.setPadding(16,16,16,24);body.setOrientation(LinearLayout.VERTICAL);scroll.addView(body);
         TextView section=label("SAVE FILE",16,TEXT,true);body.addView(section);
+        Button access=button("Grant broad file access");access.setOnClickListener(v->requestBroadFileAccess());body.addView(access);
+        TextView accessInfo=label("Opens Android settings to allow shared-storage access. Protected app folders may remain restricted.",12,MUTED,false);body.addView(accessInfo);
         Button access=button("🔓   Grant broad storage access");access.setOnClickListener(v->requestAllFilesAccess());body.addView(access);
         Button connect=button("⛓   Connect save folder");connect.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);startActivityForResult(i,TREE);});body.addView(connect);
         Button open=button("＋   Select save file");open.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,OPEN);});body.addView(open);
