@@ -16,3 +16,10 @@ Push to `main` or run Actions → Build Quest APK. The workflow uploads `app-deb
 Android scoped storage restrictions may prevent direct access to another app's `Android/data` folder. The app currently relies on file picker permissions and does not bypass OS security restrictions.
 
 Save-path hint from user: `/storage/emulated/0/Android/data/com.h3vr2/Savedata/` (verify actual package/layout on device).
+
+
+## UI refresh (2026-11-25)
+- Dark slate theme with cyan accent and modern card styling
+- Improved header, file status display, editor workspace and action buttons
+- Responsive scroll layout for headset/mobile screens
+- UI refresh only; save-format-specific controls are still pending sample data
