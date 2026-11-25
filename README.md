@@ -8,8 +8,8 @@ Push to `main` or run Actions → Build Quest APK. The workflow uploads `app-deb
 
 ## Current functionality
 - Android Storage Access Framework file picker (select a file, or select a folder where supported)
-- Preview file contents as UTF-8 or hex
 - gzip decompression/compression
+- Boolean JSON values edited using a toggle control
 - JSON validation and editing
 - Export edited file and separate backup
 
@@ -32,7 +32,8 @@ Save-path hint from user: `/storage/emulated/0/Android/data/com.h3vr2/Savedata/`
 - Direct overwrite is guarded by backup export and confirmation. This is not an atomic-save guarantee: some Android storage providers may truncate or fail during replacement. Prefer exporting an edited copy and retaining the original.
 - Save candidates are heuristic. Review the filename and contents before editing. Folder scan depth is limited and Android storage access may be denied for protected app folders.
 - Inventory, store, presets/favorites, and field-guide schema are not verified or implemented. Generic field editing is not proof that the game save format is supported.
-- Latest source changes still require a successful CI build and physical Quest test before release claims.
+- Boolean values now use a toggle control instead of free-text entry.
+- The latest commits must be confirmed by CI and tested on a physical Quest before release claims.
 
 ## Basic use
 
