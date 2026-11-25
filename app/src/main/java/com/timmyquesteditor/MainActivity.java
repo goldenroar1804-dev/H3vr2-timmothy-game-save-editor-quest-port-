@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
         String[] titles={"Quick Edit","Store","Inventory","★ Favorites","All Fields","Raw JSON","Field Guide"};
         for(int i=0;i<pages.length;i++){final int index=i;Button tb=button(titles[i]);tb.setLayoutParams(new LinearLayout.LayoutParams(-2,-2));tb.setOnClickListener(v->{workspace.removeAllViews();workspace.addView(pages[index]);});tabs.addView(tb);}
         workspace.addView(quickPanel);
-        TextView note=label("Interface structure adapted from the original H3VR2 Save Editor. Editing actions are being connected to the Quest save format; not all tabs are functional yet.",13,MUTED,false);note.setPadding(14,16,14,16);note.setBackground(panel());body.addView(note);
+        TextView note=label("Store and Inventory tabs now filter fields by save-data keywords. Save format is not yet validated against an actual Quest save. Export an original backup before overwriting.",13,MUTED,false);note.setPadding(14,16,14,16);note.setBackground(panel());body.addView(note);
         root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));setContentView(root);
     }
     void requestAllFilesAccess(){ if(android.os.Build.VERSION.SDK_INT>=30){try{Intent i=new Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,Uri.parse("package:"+getPackageName()));startActivity(i);}catch(Exception e){Intent i=new Intent(android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);startActivity(i);}}else{status.setText("Storage access is handled through Android file selection.");}}
@@ -78,14 +78,13 @@ public class MainActivity extends Activity {
             String panelTitle=((TextView)p.getChildAt(0)).getText().toString().toLowerCase(java.util.Locale.ROOT);
             if(quick||panelTitle.contains("store")){
                 java.util.ArrayList<String> filtered=new java.util.ArrayList<>();
-                for(String path:paths){String low=path.toLowerCase(java.util.Locale.ROOT);
-                    if(quick ? low.matches(".*(money|cash|currency|xp|experience|health|ammo|resource|score|stat|level|credit|gold|meat|metal|mustard).*")
-                    : low.matches(".*(storestates|\\\\.boxes|\\\\.item$|\\\\.sectionid$|\\\\.price$|\\\\.purchased$|\\\\.contentsquantity$|money|meat|metal|mustard|experience).*"))filtered.add(path);}
+                String[] terms=quick?new String[]{"money","cash","currency","xp","experience","health","ammo","resource","score","stat","level","credit","gold","meat","metal","mustard"}:new String[]{"store","box","sectionid","price","purchased","quantity","money","meat","metal","mustard","experience"};
+                for(String path:paths){String low=path.toLowerCase(java.util.Locale.ROOT);boolean match=false;for(String term:terms)if(low.contains(term)){match=true;break;}if(match)filtered.add(path);}
                 paths=filtered;
             }else if(panelTitle.contains("inventory")){
                 java.util.ArrayList<String> filtered=new java.util.ArrayList<>();
-                for(String path:paths){String low=path.toLowerCase(java.util.Locale.ROOT);
-                    if(low.matches(".*(inventorypages|dumpqueue|wearables|pockets|holdinginhandleft|holdinginhandright|\\\\.gridsize$|\\\\.items$|\\\\.contents$|\\\\.objects$|\\\\.itemdef$|\\\\.affixments$|\\\\.instanceseed$|\\\\.rectmin$|\\\\.rectsize$).*"))filtered.add(path);}
+                String[] terms={"inventorypages","dumpqueue","wearables","pockets","holdinginhandleft","holdinginhandright","gridsize","items","contents","objects","itemdef","affixments","instanceseed","rectmin","rectsize","position","rotation","transform"};
+                for(String path:paths){String low=path.toLowerCase(java.util.Locale.ROOT);boolean match=false;for(String term:terms)if(low.contains(term)){match=true;break;}if(match)filtered.add(path);}
                 paths=filtered;
             }
             EditText filter=(EditText)p.getChildAt(1);String query=filter==null?"":filter.getText().toString().trim().toLowerCase(java.util.Locale.ROOT);
