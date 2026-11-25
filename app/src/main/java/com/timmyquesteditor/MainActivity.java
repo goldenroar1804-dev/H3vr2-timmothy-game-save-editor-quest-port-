@@ -2,6 +2,7 @@ package com.timmyquesteditor;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
 import android.content.Intent;
 import android.net.Uri;
 import android.graphics.Color;
@@ -29,10 +30,10 @@ public class MainActivity extends Activity {
         TextView title=label("Save Editor",28,TEXT,true);header.addView(title);
         TextView subtitle=label("H3VR2 • Quest companion",14,MUTED,false);header.addView(subtitle);root.addView(header);
         ScrollView scroll=new ScrollView(this);LinearLayout body=new LinearLayout(this);body.setPadding(16,16,16,24);body.setOrientation(LinearLayout.VERTICAL);scroll.addView(body);
-        TextView section=label("SAVE FILE",16,TEXT,true);body.addView(section);
+        TextView section=label("SAVE FILE",16,TEXT,true);body.addView(section);\n        Button access=button("🔓   Grant broad storage access");access.setOnClickListener(v->requestAllFilesAccess());body.addView(access);
         Button connect=button("⛓   Connect save folder");connect.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);startActivityForResult(i,TREE);});body.addView(connect);
         Button open=button("＋   Select save file");open.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,OPEN);});body.addView(open);
-        status=label("No save loaded\nChoose a file to begin. Android may restrict access to Android/data.",14,MUTED,false);status.setPadding(14,14,14,14);status.setBackground(panel());body.addView(status);
+        status=label("No save loaded\nBroad access may help, but Android still restricts Android/data.",14,MUTED,false);status.setPadding(14,14,14,14);status.setBackground(panel());body.addView(status);
         LinearLayout tabs=new LinearLayout(this);tabs.setOrientation(LinearLayout.HORIZONTAL);tabs.setPadding(0,8,0,8);
         ScrollView tabScroll=new ScrollView(this);tabScroll.setHorizontalScrollBarEnabled(true);tabScroll.addView(tabs);body.addView(tabScroll);
         FrameLayout workspace=new FrameLayout(this);body.addView(workspace,new LinearLayout.LayoutParams(-1,-2));
@@ -54,7 +55,7 @@ public class MainActivity extends Activity {
         TextView note=label("Interface structure adapted from the original H3VR2 Save Editor. Editing actions are being connected to the Quest save format; not all tabs are functional yet.",13,MUTED,false);note.setPadding(14,16,14,16);note.setBackground(panel());body.addView(note);
         root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));setContentView(root);
     }
-    LinearLayout categoryPanel(String title,String description){LinearLayout p=new LinearLayout(this);p.setOrientation(LinearLayout.VERTICAL);p.setPadding(12,12,12,12);p.setBackground(panel());TextView h=label(title,19,TEXT,true);p.addView(h);TextView d=label(description,14,MUTED,false);d.setPadding(0,12,0,12);p.addView(d);TextView wait=label("Save data fields and actions will appear here when the file schema is connected.",13,MUTED,false);p.addView(wait);return p;}
+    void requestAllFilesAccess(){ if(android.os.Build.VERSION.SDK_INT>=30){try{Intent i=new Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,Uri.parse("package:"+getPackageName()));startActivity(i);}catch(Exception e){Intent i=new Intent(android.provider.Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);startActivity(i);}}else{status.setText("Storage access is handled through Android file selection.");}}\n    LinearLayout categoryPanel(String title,String description){LinearLayout p=new LinearLayout(this);p.setOrientation(LinearLayout.VERTICAL);p.setPadding(12,12,12,12);p.setBackground(panel());TextView h=label(title,19,TEXT,true);p.addView(h);TextView d=label(description,14,MUTED,false);d.setPadding(0,12,0,12);p.addView(d);TextView wait=label("Save data fields and actions will appear here when the file schema is connected.",13,MUTED,false);p.addView(wait);return p;}
     TextView label(String s,int size,int color,boolean bold){TextView t=new TextView(this);t.setText(s);t.setTextSize(size);t.setTextColor(color);if(bold)t.setTypeface(null,Typeface.BOLD);return t;}
     android.graphics.drawable.Drawable panel(){android.graphics.drawable.GradientDrawable d=new android.graphics.drawable.GradientDrawable();d.setColor(PANEL);d.setCornerRadius(18);d.setStroke(1,Color.rgb(40,52,68));return d;}
     Button button(String s){Button b=new Button(this);b.setText(s);b.setTextColor(TEXT);b.setTextSize(15);b.setAllCaps(false);b.setGravity(Gravity.CENTER);b.setBackground(panel());LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.setMargins(0,10,0,10);b.setLayoutParams(lp);return b;}
