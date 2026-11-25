@@ -41,7 +41,8 @@ public class MainActivity extends Activity {
         ScrollView scroll=new ScrollView(this);LinearLayout body=new LinearLayout(this);body.setPadding(16,16,16,24);body.setOrientation(LinearLayout.VERTICAL);scroll.addView(body);
         TextView section=label("SAVE FILE",16,TEXT,true);body.addView(section);
         Button access=button("🔓   Grant broad storage access");access.setOnClickListener(v->requestAllFilesAccess());body.addView(access);
-        Button connect=button("⛓   Select / connect save folder");connect.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);startActivityForResult(i,TREE);});body.addView(connect);\n        Button rescan=button("↻   Scan connected folder again");rescan.setOnClickListener(v->{if(treeRoot!=null)findSaveCandidates(treeRoot);else status.setText("Connect a folder first.");});body.addView(rescan);
+        Button connect=button("⛓   Select / connect save folder");connect.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);startActivityForResult(i,TREE);});body.addView(connect);
+        Button rescan=button("↻   Scan connected folder again");rescan.setOnClickListener(v->{if(treeRoot!=null)findSaveCandidates(treeRoot);else status.setText("Connect a folder first.");});body.addView(rescan);
         Button open=button("＋   Select save file");open.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,OPEN);});body.addView(open);
         status=label("No save loaded\nBroad access may help, but Android still restricts Android/data.",14,MUTED,false);status.setPadding(14,14,14,14);status.setBackground(panel());body.addView(status);
         LinearLayout tabs=new LinearLayout(this);tabs.setOrientation(LinearLayout.HORIZONTAL);tabs.setPadding(0,8,0,8);
