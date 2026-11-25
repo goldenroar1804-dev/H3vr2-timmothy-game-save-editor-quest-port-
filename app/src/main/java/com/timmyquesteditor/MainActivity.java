@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
-import android.os.Environment;
 import android.content.Intent;
 import android.net.Uri;
 import android.graphics.Color;
@@ -52,7 +51,8 @@ public class MainActivity extends Activity {
         LinearLayout rawPanel=new LinearLayout(this);rawPanel.setOrientation(LinearLayout.VERTICAL);rawPanel.addView(label("RAW JSON • edit the selected save file",15,TEXT,true));rawPanel.addView(editor,new LinearLayout.LayoutParams(-1,-2));
         Button validate=button("✓   Validate JSON");validate.setOnClickListener(v->validateJson());rawPanel.addView(validate);
         Button export=button("⇧   Export edited save");export.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);i.putExtra(Intent.EXTRA_TITLE,suggestedName());startActivityForResult(i,SAVE);});rawPanel.addView(export);
-        Button directSave=button("💾   Save edits back to selected file");directSave.setOnClickListener(v->saveBackToOpened());rawPanel.addView(directSave);\n        Button backup=button("⤓   Export original backup");backup.setOnClickListener(v->{if(original==null){status.setText("Open a file first.");return;}Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);i.putExtra(Intent.EXTRA_TITLE,"backup_"+suggestedName());startActivityForResult(i,BACKUP);});rawPanel.addView(backup);
+        Button directSave=button("💾   Save edits back to selected file");directSave.setOnClickListener(v->saveBackToOpened());rawPanel.addView(directSave);
+        Button backup=button("⤓   Export original backup");backup.setOnClickListener(v->{if(original==null){status.setText("Open a file first.");return;}Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);i.putExtra(Intent.EXTRA_TITLE,"backup_"+suggestedName());startActivityForResult(i,BACKUP);});rawPanel.addView(backup);
         LinearLayout quickPanel=fieldPanel("QUICK EDIT",true);
         LinearLayout storePanel=fieldPanel("STORE EDIT",false);
         LinearLayout inventoryPanel=fieldPanel("INVENTORY / STORAGE",false);
