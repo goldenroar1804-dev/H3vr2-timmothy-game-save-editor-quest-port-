@@ -40,8 +40,6 @@ public class MainActivity extends Activity {
         TextView subtitle=label("H3VR2 • Quest companion",14,MUTED,false);header.addView(subtitle);root.addView(header);
         ScrollView scroll=new ScrollView(this);LinearLayout body=new LinearLayout(this);body.setPadding(16,16,16,24);body.setOrientation(LinearLayout.VERTICAL);scroll.addView(body);
         TextView section=label("SAVE FILE",16,TEXT,true);body.addView(section);
-        Button access=button("Grant broad file access");access.setOnClickListener(v->requestBroadFileAccess());body.addView(access);
-        TextView accessInfo=label("Opens Android settings to allow shared-storage access. Protected app folders may remain restricted.",12,MUTED,false);body.addView(accessInfo);
         Button access=button("🔓   Grant broad storage access");access.setOnClickListener(v->requestAllFilesAccess());body.addView(access);
         Button connect=button("⛓   Connect save folder");connect.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);startActivityForResult(i,TREE);});body.addView(connect);
         Button open=button("＋   Select save file");open.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,OPEN);});body.addView(open);
