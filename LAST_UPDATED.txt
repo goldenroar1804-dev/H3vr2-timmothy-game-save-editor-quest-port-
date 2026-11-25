@@ -1,1 +1,1 @@
-Timmy Quest Editor prototype — initial Android project + GitHub Actions APK workflow. Update 2026-11-25.
+Timmy Quest Editor — modern dark UI refresh committed 2026-11-25. Custom data-specific editing controls remain pending save-format analysis.
