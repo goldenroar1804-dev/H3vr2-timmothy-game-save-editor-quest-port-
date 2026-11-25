@@ -1,0 +1,1 @@
+Timmy Quest Editor prototype — initial Android project + GitHub Actions APK workflow. Update 2026-11-25.
