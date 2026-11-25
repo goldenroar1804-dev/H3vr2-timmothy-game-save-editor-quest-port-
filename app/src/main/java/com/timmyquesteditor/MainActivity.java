@@ -89,7 +89,8 @@ public class MainActivity extends Activity {
             }
             EditText filter=(EditText)p.getChildAt(1);String query=filter==null?"":filter.getText().toString().trim().toLowerCase(java.util.Locale.ROOT);
             if(!query.isEmpty()){java.util.ArrayList<String> matching=new java.util.ArrayList<>();for(String path:paths)if(path.toLowerCase(java.util.Locale.ROOT).contains(query))matching.add(path);paths=matching;}
-            int total=paths.size();if(paths.size()>250)paths=new java.util.ArrayList<>(paths.subList(0,250));
+            java.util.Collections.sort(paths,String.CASE_INSENSITIVE_ORDER);int total=paths.size();if(paths.size()>250)paths=new java.util.ArrayList<>(paths.subList(0,250));
+            p.addView(label(total+" editable leaf fields found",12,MUTED,false));
             for(String path:paths){Button b=button(path+"  ✎");b.setTextSize(12);b.setOnClickListener(v->editPath(path));p.addView(b);}
             if(paths.isEmpty())p.addView(label(quick?"No matching quick-edit fields.":"No matching fields in this save file.",13,MUTED,false));
             else if(total>250)p.addView(label("Showing 250 of "+total+" fields. Filter to narrow the list.",12,MUTED,false));
