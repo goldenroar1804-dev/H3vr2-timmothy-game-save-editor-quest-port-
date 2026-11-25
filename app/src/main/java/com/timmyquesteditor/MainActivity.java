@@ -13,10 +13,13 @@ import java.io.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import org.json.*;
+import androidx.documentfile.provider.DocumentFile;
+import android.content.SharedPreferences;
 
 public class MainActivity extends Activity {
     TextView status; EditText editor; Uri opened; boolean wasGzip=false; byte[] original;
-    static final int OPEN=1, SAVE=2, BACKUP=3;
+    static final int OPEN=1, SAVE=2, BACKUP=3, TREE=4;
+    Uri treeUri; DocumentFile treeRoot;
     final int BG=Color.rgb(12,16,24), PANEL=Color.rgb(23,30,42), ACCENT=Color.rgb(65,190,220), TEXT=Color.rgb(235,242,250), MUTED=Color.rgb(155,170,188);
     public void onCreate(Bundle b){super.onCreate(b);getWindow().setStatusBarColor(BG);getWindow().setNavigationBarColor(BG);buildUI();}
     void buildUI(){
@@ -27,7 +30,7 @@ public class MainActivity extends Activity {
         TextView subtitle=label("H3VR2 • Quest companion",14,MUTED,false);header.addView(subtitle);root.addView(header);
         ScrollView scroll=new ScrollView(this);LinearLayout body=new LinearLayout(this);body.setPadding(16,16,16,24);body.setOrientation(LinearLayout.VERTICAL);scroll.addView(body);
         TextView section=label("SAVE FILE",16,TEXT,true);body.addView(section);
-        Button open=button("＋   Select save file");open.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,OPEN);});body.addView(open);
+        Button connect=button("⛓   Connect save folder");connect.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);startActivityForResult(i,TREE);});body.addView(connect);\n        Button open=button("＋   Select save file");open.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,OPEN);});body.addView(open);
         status=label("No save loaded\nChoose a file to begin. Android may restrict access to Android/data.",14,MUTED,false);status.setPadding(14,14,14,14);status.setBackground(panel());body.addView(status);
         TextView editTitle=label("RAW DATA WORKSPACE",16,TEXT,true);editTitle.setPadding(0,24,0,10);body.addView(editTitle);
         editor=new EditText(this);editor.setGravity(Gravity.TOP|Gravity.LEFT);editor.setTypeface(Typeface.MONOSPACE);editor.setMinLines(14);editor.setTextSize(13);editor.setTextColor(TEXT);editor.setHintTextColor(MUTED);editor.setHint("File contents will appear here…");editor.setPadding(14,14,14,14);editor.setBackground(panel());body.addView(editor,new LinearLayout.LayoutParams(-1,-2));
@@ -44,12 +47,12 @@ public class MainActivity extends Activity {
     byte[] read(Uri u)throws Exception{InputStream in=getContentResolver().openInputStream(u);ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] buf=new byte[8192];int n;while((n=in.read(buf))>0)out.write(buf,0,n);in.close();return out.toByteArray();}
     byte[] ungzip(byte[] data)throws Exception{GZIPInputStream g=new GZIPInputStream(new ByteArrayInputStream(data));ByteArrayOutputStream o=new ByteArrayOutputStream();byte[] b=new byte[8192];int n;while((n=g.read(b))>0)o.write(b,0,n);g.close();return o.toByteArray();}
     byte[] gzip(byte[] data)throws Exception{ByteArrayOutputStream o=new ByteArrayOutputStream();GZIPOutputStream g=new GZIPOutputStream(o);g.write(data);g.close();return o.toByteArray();}
-    protected void onActivityResult(int req,int res,Intent data){super.onActivityResult(req,res,data);if(res!=RESULT_OK||data==null)return;Uri u=data.getData();try{
+    protected void onActivityResult(int req,int res,Intent data){super.onActivityResult(req,res,data);if(res!=RESULT_OK||data==null)return;Uri u=data.getData();try{\n        if(req==TREE){getContentResolver().takePersistableUriPermission(u,Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION);treeUri=u;treeRoot=DocumentFile.fromTreeUri(this,u);findSaveCandidates(treeRoot);return;}
         if(req==OPEN){opened=u;original=read(u);wasGzip=original.length>1&&original[0]==(byte)0x1f&&original[1]==(byte)0x8b;byte[] raw=wasGzip?ungzip(original):original;String s=new String(raw,java.nio.charset.StandardCharsets.UTF_8);editor.setText(s);status.setText("Loaded: "+u.getLastPathSegment()+"\n"+(wasGzip?"GZIP compressed":"Uncompressed")+" • "+raw.length+" bytes");}
         else if(req==SAVE){String s=editor.getText().toString();validateJsonOrThrow(s);byte[] raw=s.getBytes(java.nio.charset.StandardCharsets.UTF_8);write(u,wasGzip?gzip(raw):raw);status.setText("Exported edited file successfully.");}
         else if(req==BACKUP){write(u,original);status.setText("Original backup exported unchanged.");}
     }catch(Exception e){status.setText("Error: "+e.getMessage());}}
-    void write(Uri u,byte[] b)throws Exception{OutputStream o=getContentResolver().openOutputStream(u);o.write(b);o.close();}
+    void findSaveCandidates(DocumentFile root){ java.util.ArrayList<DocumentFile> found=new java.util.ArrayList<>(); scan(root,found,0); if(found.isEmpty()){status.setText("Folder connected, but no likely save files found. Try selecting the specific profile folder.");return;} String[] names=new String[found.size()];for(int i=0;i<found.size();i++)names[i]=found.get(i).getName();new android.app.AlertDialog.Builder(this).setTitle("Choose save file").setItems(names,(d,w)->{try{DocumentFile f=found.get(w);opened=f.getUri();original=read(opened);wasGzip=original.length>1&&original[0]==(byte)0x1f&&original[1]==(byte)0x8b;byte[] raw=wasGzip?ungzip(original):original;editor.setText(new String(raw,java.nio.charset.StandardCharsets.UTF_8));status.setText("Connected: "+f.getName()+"\\n"+(wasGzip?"GZIP compressed":"Uncompressed"));}catch(Exception e){status.setText("Could not read file: "+e.getMessage());}}).show();}\n    void scan(DocumentFile dir,java.util.ArrayList<DocumentFile> found,int depth){if(depth>5)return;for(DocumentFile f:dir.listFiles()){if(f.isDirectory())scan(f,found,depth+1);else{String n=f.getName()==null?"":f.getName().toLowerCase();if(n.contains("save")||n.contains("profile")||n.endsWith(".json")||n.endsWith(".dat"))found.add(f);}}}\n    void write(Uri u,byte[] b)throws Exception{OutputStream o=getContentResolver().openOutputStream(u);o.write(b);o.close();}
     void validateJson(){try{validateJsonOrThrow(editor.getText().toString());status.setText("JSON is valid ✓");}catch(Exception e){status.setText("Invalid JSON: "+e.getMessage());}}
     void validateJsonOrThrow(String s)throws Exception{String t=s.trim();if(t.startsWith("{"))new JSONObject(t);else if(t.startsWith("["))new JSONArray(t);else throw new Exception("JSON must begin with { or [");}
 }
