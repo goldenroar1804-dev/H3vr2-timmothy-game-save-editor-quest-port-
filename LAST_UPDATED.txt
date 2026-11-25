@@ -1,1 +1,2 @@
 Timmy Quest Editor — ported original H3VR2 Save Editor tab layout (Quick Edit, Store, Inventory, Favorites/Presets, All Fields, Raw JSON, Field Guide) into Quest UI on 2026-11-25. Tabs are structural placeholders; data-aware editing and direct save interaction remain pending.
+2026-11-25: Added Android MANAGE_EXTERNAL_STORAGE permission declaration and an in-app button that opens the system all-files-access settings page. Access remains limited by Android's protected Android/data app directories.
