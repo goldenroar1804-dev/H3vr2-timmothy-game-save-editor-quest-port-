@@ -26,3 +26,18 @@ Await the independent Claude audit and review it for correctness/conflicts. The 
 
 ## Work protocol
 ChatGPT follows AI_COORDINATION.md and the saved daily automation instructions. Keep tasks small, work on separate branches, report test evidence, and never merge PRs automatically.
+
+
+## Autonomous update (2026-11-27)
+- Repository state review: `AI_COORDINATION.md`, `CHATGPT_TASK.md`, `CLAUDE_TASK.md`, open PRs, branch list, recent workflow runs, and PR #4 files were inspected. PR #4 is still draft; PRs #1 and #3 are also open, and no Claude-authored audit PR/report or review was found. Claude's read-only audit remains assigned in `CLAUDE_TASK.md`.
+- Latest CI for PR #4's report commit `202cd0414c324a4ddf715f909df0c3b839be17fb` shows two successful workflow runs (45879189669 and 45879183609). No Quest test evidence exists.
+- Identified a concrete SAF usability gap: `restoreFolder()` restored the URI but there was no UI action to rescan, despite its status text. A dedicated **Rescan connected folder** button now checks that a readable folder is available and reports permission/scan errors. The restore message now directs users to this button.
+- Hardened resource lifecycle: `read(Uri)` uses try-with-resources and handles a null input stream; GZIP read/write helpers close streams with try-with-resources.
+- Files changed in task branch `fix/saf-rescan-and-stream-closure`: `app/src/main/java/com/timmyquesteditor/MainActivity.java` and this task report. Source commit: `ee3a1ec86b6e9ecea79c916dd4c6d78add051ad3`.
+- Static review confirms the rescan action reuses the existing recursive scan and file selection/load path, rather than introducing new save-schema assumptions. No local Android build/test was run. Draft stacked PR #5 is open; CI is in progress on the corrected source head. [PR #5](https://github.com/goldenroar1804-dev/H3vr2-timmothy-game-save-editor-quest-port-/pull/5).
+- Risk/blocker: the SAF provider and persisted folder permission behavior still require headset testing; this change does not prove compatibility with restricted Android/Quest folders. Direct overwrite still needs real-save backup/restore testing.
+- Next: review Claude's audit when submitted, evaluate CI for this task PR, then request physical Quest validation of folder rescan, file selection, backup, and export.
+
+- Follow-up source review caught an escaped newline mistakenly inserted as literal `\\n` between statements in the initial rescan-button commit; it was corrected in commit `f655527797ce8d5fb18ca10e4f981814bbfd96b1`. The PR head now uses an actual Java source line break. CI for the latest head is in progress.
+
+- CI evidence: corrected source commit `f655527797ce8d5fb18ca10e4f981814bbfd96b1` and report commit `605379406aa431904798ed9ae7f991602a342ce7` both built successfully (runs 46051567592 and 46051579344). Run 46051579344 verified APK and uploaded `TimmyQuestEditor-APK` (32,197 bytes; SHA-256 `39cbf4820ee416e9b5eed7565b8caa50fc0ed4d1c877cf28f06b5cdc13f100c`; expires 2026-12-11). Latest report-only commit `f32c3f5f1c520bb8070f87ac0dfc31bb4ac9a496` has a separate build still in progress; source code is unchanged from the verified successful build.
